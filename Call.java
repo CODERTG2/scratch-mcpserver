@@ -4,4 +4,8 @@ public class Call {
     public Call(int id) {
         this.id = id;
     }
+
+    public int getId() {
+        return id;
+    }
 }

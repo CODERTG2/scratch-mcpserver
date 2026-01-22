@@ -1,15 +1,18 @@
 public class Handler {
-    enum Type {
-        REQUEST,
-        RESPONSE,
-        NOTIFICATION,
-        ERROR
-    }
-
     // converts between the JSON-RPC.
     public static Call convert_to_call(JSONRPC jsonrpc) {
-        // code to convert jsonrpc into a call object
-        return;
+        switch (jsonrpc.getType()) {
+            case REQUEST:
+                return new Request(jsonrpc.getId());
+            case RESPONSE:
+                return new Response(jsonrpc.getId());
+            case NOTIFICATION:
+                return new Notification(jsonrpc.getId());
+            case ERROR:
+                return new Error(jsonrpc.getId());
+            default:
+                return new Error(jsonrpc.getId());
+        }
     }
 
     public static JSONRPC convert_to_jsonrpc(Call call) {
