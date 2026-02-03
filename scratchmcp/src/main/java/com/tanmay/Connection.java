@@ -1,3 +1,5 @@
+package com.tanmay;
+
 public class Connection {
     // the connection to the server and clients.
     enum State {

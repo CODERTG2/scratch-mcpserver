@@ -1,3 +1,5 @@
+package com.tanmay;
+
 public class Handler {
     // converts between the JSON-RPC.
     public static Call convert_to_call(JSONRPC jsonrpc) {

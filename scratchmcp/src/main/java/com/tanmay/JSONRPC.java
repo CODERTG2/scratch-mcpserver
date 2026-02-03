@@ -1,5 +1,8 @@
+package com.tanmay;
+
 import java.util.HashMap;
 import java.io.BufferedReader;
+import org.json.JSONObject;
 
 public class JSONRPC {
     private BufferedReader reader;
@@ -14,6 +17,10 @@ public class JSONRPC {
     // json object
     public JSONRPC(BufferedReader reader) {
         this.reader = reader;
+    }
+
+    public JSONRPC() {
+        this.reader = null;
     }
 
     public int getId() {
@@ -45,9 +52,19 @@ public class JSONRPC {
     }
 
     public void parse() {
-        String line;
-        while ((line = reader.readLine()) != null) {
-
+        try {
+            String line = reader.readLine();
+            JSONObject json = new JSONObject(line);
+            id = json.getInt("id");
+            type = Constants.Type.valueOf(json.getString("type"));
+            method = json.getString("method");
+            params = json.getJSONArray("params").toArray();
+            result = json.get("result");
+            error = json.getJSONObject("error");
+            notification = json.getString("notification");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 }
