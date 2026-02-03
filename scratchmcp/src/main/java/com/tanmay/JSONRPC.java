@@ -9,9 +9,9 @@ public class JSONRPC {
     private int id;
     private Constants.Type type;
     private String method;
-    private Object[] params;
+    private Object[][] params;
     private Object result;
-    private HashMap<String, Object> error;
+    private HashMap<Integer, String> error;
     private String notification;
 
     // json object
@@ -58,9 +58,17 @@ public class JSONRPC {
             id = json.getInt("id");
             type = Constants.Type.valueOf(json.getString("type"));
             method = json.getString("method");
-            params = json.getJSONArray("params").toArray();
+            // "params": "param1,datatype;param2,datatype;param3,datatype"
+            String[] param_string = json.getString("params").split(";");
+            params = new Object[param_string.length][2];
+            for (int i = 0; i < param_string.length; i++) {
+                String[] param = param_string[i].split(",");
+                params[i][0] = param[0];
+                params[i][1] = param[1];
+            }
             result = json.get("result");
-            error = json.getJSONObject("error");
+            // "error": "code: error_message"
+            error.put(Integer.parseInt(json.getString("error").split(": ")[0]), json.getString("error").split(": ")[1]);
             notification = json.getString("notification");
         } catch (Exception e) {
             e.printStackTrace();
