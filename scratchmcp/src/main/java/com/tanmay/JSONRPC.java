@@ -43,7 +43,7 @@ public class JSONRPC {
         return result;
     }
 
-    public HashMap<String, Object> getError() {
+    public HashMap<Integer, String> getError() {
         return error;
     }
 
@@ -73,6 +73,26 @@ public class JSONRPC {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
+    public void send() {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("id", id);
+            json.put("type", type.toString());
+            json.put("method", method);
+            // "params": "param1,datatype;param2,datatype;param3,datatype"
+            StringBuilder param_string = new StringBuilder();
+            for (int i = 0; i < params.length; i++) {
+                param_string.append(params[i][0]).append(",").append(params[i][1]).append(";");
+            }
+            json.put("params", param_string.toString());
+            json.put("result", result);
+            json.put("error", error.get(id) + ": " + error.get(id));
+            json.put("notification", notification);
+            System.out.println(json.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
