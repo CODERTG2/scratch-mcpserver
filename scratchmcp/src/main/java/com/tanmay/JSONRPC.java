@@ -55,21 +55,39 @@ public class JSONRPC {
         try {
             String line = reader.readLine();
             JSONObject json = new JSONObject(line);
+
             id = json.getInt("id");
             type = Constants.Type.valueOf(json.getString("type"));
-            method = json.getString("method");
-            // "params": "param1,datatype;param2,datatype;param3,datatype"
-            String[] param_string = json.getString("params").split(";");
-            params = new Object[param_string.length][2];
-            for (int i = 0; i < param_string.length; i++) {
-                String[] param = param_string[i].split(",");
-                params[i][0] = param[0];
-                params[i][1] = param[1];
+
+            switch (type) {
+                case REQUEST:
+                    method = json.getString("method");
+
+                    // "params": "param1,datatype; param2,datatype; param3,datatype"
+                    String[] param_string = json.getString("params").split("; ");
+                    params = new Object[param_string.length][2];
+                    for (int i = 0; i < param_string.length; i++) {
+                        String[] param = param_string[i].split(",");
+                        params[i][0] = param[0];
+                        params[i][1] = param[1];
+                    }
+
+                    break;
+
+                case RESPONSE:
+                    result = json.get("result");
+                    break;
+
+                case NOTIFICATION:
+                    notification = json.getString("notification");
+                    break;
+
+                case ERROR:
+                    // "error": "code: error_message"
+                    error.put(Integer.parseInt(json.getString("error").split(": ")[0]),
+                            json.getString("error").split(": ")[1]);
+                    break;
             }
-            result = json.get("result");
-            // "error": "code: error_message"
-            error.put(Integer.parseInt(json.getString("error").split(": ")[0]), json.getString("error").split(": ")[1]);
-            notification = json.getString("notification");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -78,18 +96,35 @@ public class JSONRPC {
     public void send() {
         try {
             JSONObject json = new JSONObject();
+
             json.put("id", id);
             json.put("type", type.toString());
-            json.put("method", method);
-            // "params": "param1,datatype;param2,datatype;param3,datatype"
-            StringBuilder param_string = new StringBuilder();
-            for (int i = 0; i < params.length; i++) {
-                param_string.append(params[i][0]).append(",").append(params[i][1]).append(";");
+
+            switch (type) {
+                case REQUEST:
+                    json.put("method", method);
+
+                    // "params": "param1,datatype; param2,datatype; param3,datatype"
+                    StringBuilder param_string = new StringBuilder();
+                    for (int i = 0; i < params.length; i++) {
+                        param_string.append(params[i][0]).append(",").append(params[i][1]).append(";");
+                    }
+                    json.put("params", param_string.toString());
+                    break;
+
+                case RESPONSE:
+                    json.put("result", result);
+                    break;
+
+                case NOTIFICATION:
+                    json.put("notification", notification);
+                    break;
+
+                case ERROR:
+                    json.put("error", error.get(id) + ": " + error.get(id));
+                    break;
             }
-            json.put("params", param_string.toString());
-            json.put("result", result);
-            json.put("error", error.get(id) + ": " + error.get(id));
-            json.put("notification", notification);
+
             System.out.println(json.toString());
         } catch (Exception e) {
             e.printStackTrace();
